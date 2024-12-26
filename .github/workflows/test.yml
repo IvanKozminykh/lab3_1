@@ -28,13 +28,13 @@ jobs:
       run: |
         python -m venv .venv  # Создаем виртуальное окружение
         .\.venv\Scripts\activate  # Активируем виртуальное окружение (Windows)
-        pip install --upgrade pip  # Обновляем pip
+        python -m pip install --upgrade --user pip  # Обновляем pip с правами пользователя
         pip install -r requirements.txt  # Устанавливаем зависимости
 
     # Шаг 4: Проведение модульных тестов с генерацией HTML-отчета
     - name: Run tests
       run: |
-        .\.venv\Scripts\activate  # Активируем виртуальное окружение
+        .\.venv\Scripts\activate  # Активация виртуального окружения
         pytest --html=report.html --self-contained-html  # Запуск тестов и генерация отчета
 
     # Шаг 5: Выгрузка отчета о тестах в виде артефакта
@@ -51,3 +51,4 @@ jobs:
       with:
         name: source-code
         path: .  # Путь к всему репозиторию
+
