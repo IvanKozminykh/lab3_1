@@ -1,0 +1,53 @@
+name: Run Tests and Upload Artifacts
+
+on:
+  push:
+    branches:
+      - main  # Запускать на пуш в ветку main
+  pull_request:
+    branches:
+      - main  # Запускать на pull request в ветку main
+
+jobs:
+  test:
+    runs-on: windows-latest  # Используем Windows для выполнения
+
+    steps:
+    # Шаг 1: Клонирование репозитория
+    - name: Checkout repository
+      uses: actions/checkout@v3  # Клонируем репозиторий
+
+    # Шаг 2: Настройка окружения Python
+    - name: Setup Python
+      uses: actions/setup-python@v4  # Установка Python
+      with:
+        python-version: 3.9  # Версия Python
+
+    # Шаг 3: Установка зависимостей из requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m venv .venv  # Создаем виртуальное окружение
+        .\.venv\Scripts\activate  # Активируем виртуальное окружение (Windows)
+        pip install --upgrade pip  # Обновляем pip
+        pip install -r requirements.txt  # Устанавливаем зависимости
+
+    # Шаг 4: Проведение модульных тестов с генерацией HTML-отчета
+    - name: Run tests
+      run: |
+        .\.venv\Scripts\activate  # Активируем виртуальное окружение
+        pytest --html=report.html --self-contained-html  # Запуск тестов и генерация отчета
+
+    # Шаг 5: Выгрузка отчета о тестах в виде артефакта
+    - name: Upload test report
+      uses: actions/upload-artifact@v3  # Загружаем артефакт с отчетом
+      with:
+        name: test-report
+        path: report.html  # Путь к сгенерированному отчету
+
+    # Шаг 6: Выгрузка кода в виде артефакта, если тесты прошли успешно
+    - name: Upload code as artifact
+      if: success()  # Если тесты прошли успешно
+      uses: actions/upload-artifact@v3  # Выгружаем код как артефакт
+      with:
+        name: source-code
+        path: .  # Путь к всему репозиторию
